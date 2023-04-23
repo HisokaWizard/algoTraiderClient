@@ -1,32 +1,30 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { ShareItem } from '../models';
-import { CountryTypeCode } from '../models/Counties';
-import { axiosQuery, baseQuery } from '../utils';
+import { CountryTypeCode, ShareItem, ShareQoutation, ShareTicker, TickerId } from '../models';
+import { baseQuery } from '../utils';
 
 export const sharesApi = createApi({
   reducerPath: 'sharesApi',
   baseQuery,
   endpoints: (builder) => ({
-    getSharesByTickers: builder.mutation<
-      ShareItem[],
-      { codes: string[]; attention: number; country_code: CountryTypeCode }
+    getSharesByFigi: builder.query<
+      ShareQoutation,
+      { ticker: TickerId; figi: string; attention: number }
     >({
       query: (args) => {
-        const { codes, attention, country_code } = args;
+        const { ticker, figi, attention } = args;
         return {
           url: '/shares_by_tickers',
-          method: 'POST',
+          method: 'GET',
           params: {
-            country_code,
+            ticker,
+            figi,
             attention,
           },
-          body: codes,
         };
       },
     }),
     getAllShares: builder.query<ShareItem[], CountryTypeCode>({
-      query: (arg) => {
-        const country_code = arg;
+      query: (country_code) => {
         return {
           method: 'GET',
           url: '/shares',
@@ -36,8 +34,23 @@ export const sharesApi = createApi({
         };
       },
     }),
+    getTickersByCountry: builder.query<ShareTicker[], CountryTypeCode>({
+      query: (country_code) => {
+        return {
+          method: 'GET',
+          url: '/share_tickers',
+          params: {
+            country_code,
+          },
+        };
+      },
+    }),
   }),
 });
 
-export const { useGetAllSharesQuery, useLazyGetAllSharesQuery, useGetSharesByTickersMutation } =
-  sharesApi;
+export const {
+  useGetAllSharesQuery,
+  useLazyGetAllSharesQuery,
+  useLazyGetSharesByFigiQuery,
+  useGetTickersByCountryQuery,
+} = sharesApi;

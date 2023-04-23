@@ -9,23 +9,24 @@ import {
   TablePagination,
 } from '@mui/material';
 import React, { memo, useCallback } from 'react';
+import { TickerId } from '../models';
 import { Column, dataMapping, TableType } from './Table.config';
 
 interface Props {
   columns: Column[];
   rows: TableType[];
-  onClick: (ticker: string) => void;
-  getTablePageState: (page: number, rowsPerPage: number) => void;
+  onClick?: (ticker: TickerId) => void;
+  getTablePageState?: (page: number, rowsPerPage: number) => void;
 }
 
 export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: Props) => {
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(20);
 
   const handleChangePage = useCallback(
     (event: unknown, newPage: number) => {
       setPage(newPage);
-      getTablePageState(newPage, rowsPerPage);
+      getTablePageState?.(newPage, rowsPerPage);
     },
     [rowsPerPage],
   );
@@ -36,8 +37,8 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
   }, []);
 
   return (
-    <Paper sx={{ width: '100%', overflow: 'hidden', backgroundColor: '#242424' }}>
-      <TableContainer sx={{ maxHeight: 450 }}>
+    <Paper sx={{ width: '100%', overflow: 'hidden', backgroundColor: 'white' }}>
+      <TableContainer sx={{ maxHeight: 480 }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -55,8 +56,8 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
                   {columns.map((column) => {
                     const value = row[column.id];
                     return (
-                      <TableCell key={column.id} align={'left'} sx={{ color: '#a25dea', py: 1 }}>
-                        {dataMapping(value, () => onClick(row.ticker))}
+                      <TableCell key={column.id} align={'left'} sx={{ color: '#a25dea', py: 0 }}>
+                        {dataMapping(value, onClick ? () => onClick(row.ticker) : undefined)}
                       </TableCell>
                     );
                   })}
@@ -67,7 +68,7 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10]}
+        rowsPerPageOptions={[10, 20, 50, 100, 200]}
         component='div'
         count={rows.length}
         rowsPerPage={rowsPerPage}
