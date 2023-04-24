@@ -65,7 +65,7 @@ export const dataMapping = (
 ): ReactNode | number | string | boolean => {
   if (!item) return '-';
   if (typeof item === 'number') {
-    return (item as number).toFixed(2);
+    return (item as number).toFixed(4);
   }
   if (typeof item === 'boolean') {
     return (

@@ -7,6 +7,7 @@ import {
   TableCell,
   TableBody,
   TablePagination,
+  SxProps,
 } from '@mui/material';
 import React, { memo, useCallback } from 'react';
 import { TickerId } from '../models';
@@ -18,6 +19,18 @@ interface Props {
   onClick?: (ticker: TickerId) => void;
   getTablePageState?: (page: number, rowsPerPage: number) => void;
 }
+
+const sxFirstColumn: SxProps = {
+  position: 'sticky',
+  left: 0,
+  backgroundColor: 'white',
+  zIndex: 10,
+};
+
+const sxFirstColumnHeader: SxProps = {
+  ...sxFirstColumn,
+  zIndex: 11,
+};
 
 export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: Props) => {
   const [page, setPage] = React.useState(0);
@@ -43,7 +56,12 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.id} align={'left'} style={{ minWidth: column.minWidth }}>
+                <TableCell
+                  sx={column.id === 'name' ? sxFirstColumnHeader : undefined}
+                  key={column.id}
+                  align={'left'}
+                  style={{ minWidth: column.minWidth }}
+                >
                   {column.label}
                 </TableCell>
               ))}
@@ -56,7 +74,15 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
                   {columns.map((column) => {
                     const value = row[column.id];
                     return (
-                      <TableCell key={column.id} align={'left'} sx={{ color: '#a25dea', py: 0 }}>
+                      <TableCell
+                        sx={
+                          column.id === 'name'
+                            ? { ...sxFirstColumn, color: '#a25dea', py: 0 }
+                            : { color: '#a25dea', py: 0 }
+                        }
+                        key={column.id}
+                        align={'left'}
+                      >
                         {dataMapping(value, onClick ? () => onClick(row.ticker) : undefined)}
                       </TableCell>
                     );

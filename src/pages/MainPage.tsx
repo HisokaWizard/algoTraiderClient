@@ -9,28 +9,29 @@ import {
 } from '@mui/material';
 import UpdateIcon from '@mui/icons-material/Update';
 import React, { ChangeEvent, memo, useCallback, useEffect, useState } from 'react';
-import { localStorageTableData, Select, tableColumns, TableType } from '../components';
-import { countriesDictionary, CountryTypeCode, TickerId } from '../models';
+import { localStorageTableData, Select, tableColumns } from '../components';
+import { countriesDictionary, CountryTypeCode } from '../models';
 import { TableShares } from '../components/Table';
 import { useGetAllSharesByCountry, useGetTickersByCountry } from './useGetMetaData';
-import { useLazyGetSharesByFigiQuery } from '../store/sharesApi';
+import { useShareActions } from './useShareActions';
 
-const { setCountingValuesToTableItem, getSharesTableDataArray, clearSharesTableData } =
-  localStorageTableData();
-const shareStep = 10;
-const shareTimeout = 5000;
+const { getSharesTableDataArray, clearSharesTableData } = localStorageTableData();
 
 export const MainPage = memo(() => {
   const [country, setCountry] = useState<CountryTypeCode>('RU');
   const { tickers, tickersMapData } = useGetTickersByCountry(country);
-  const [attention, setAttention] = useState(20);
-  const [shares, setShares] = useState<TableType[]>([]);
   const { readyToSetShares } = useGetAllSharesByCountry(country);
-  const [getShareCountingByFigi] = useLazyGetSharesByFigiQuery();
-  const [isDelay, setIsDelay] = useState(false);
-  const [isBusy, setIsBusy] = useState(false);
-  const [isJobComplete, setIsJobComplete] = useState(false);
-  const [currentPosition, setCurrentPosition] = useState(0);
+  const {
+    setShares,
+    shares,
+    setAttention,
+    attention,
+    setIsBusy,
+    isBusy,
+    getShareCounting,
+    updateShareCountingByTicker,
+    currentPosition,
+  } = useShareActions(tickersMapData, tickers);
   const theme = useTheme();
 
   useEffect(() => {
@@ -53,75 +54,6 @@ export const MainPage = memo(() => {
     clearSharesTableData();
   }, []);
 
-  // Specific job to continue getting actual quotations
-  useEffect(() => {
-    if (!isDelay) return;
-    const timer = setTimeout(() => {
-      setIsDelay(false);
-      getShareCounting(currentPosition);
-    }, shareTimeout);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [isDelay, currentPosition]);
-
-  useEffect(() => {
-    if (!isJobComplete) return;
-    setIsJobComplete(false);
-    setIsBusy(false);
-    setShares(getSharesTableDataArray());
-  }, [isJobComplete]);
-
-  // Specific recursive method to get quotations
-  const getShareCounting = useCallback(
-    async (index: number) => {
-      if (index === tickers.length - 1) {
-        setCurrentPosition(0);
-        setIsDelay(false);
-        setIsJobComplete(true);
-        return;
-      }
-      if (index === shareStep + currentPosition) {
-        setCurrentPosition(index);
-        setIsDelay(true);
-        return;
-      }
-      const ticker = tickers[index];
-      const result = await getShareCountingByFigi({
-        ticker: ticker.ticker,
-        figi: ticker.figi,
-        attention,
-      });
-      if (result?.error) {
-        setCurrentPosition(index);
-        setIsDelay(true);
-        return;
-      }
-      if (!result?.data) return;
-      setCountingValuesToTableItem(result.data);
-      index++;
-      getShareCounting(index);
-    },
-    [tickers, attention, currentPosition],
-  );
-
-  const updateShareCountingByTicker = useCallback(
-    async (ticker: TickerId) => {
-      const tickerData = tickersMapData?.get(ticker);
-      if (!tickerData) return;
-      const result = await getShareCountingByFigi({
-        ticker: tickerData.ticker,
-        figi: tickerData.figi,
-        attention,
-      });
-      if (result?.error) console.error(result.error);
-      if (!result?.data) return;
-      setCountingValuesToTableItem(result.data);
-      setShares(getSharesTableDataArray());
-    },
-    [tickersMapData],
-  );
-
   return (
     <Grid container>
       <Grid item xs={12}>
@@ -136,20 +68,20 @@ export const MainPage = memo(() => {
       <Grid px={2} item xs={12} display={'flex'} justifyContent={'left'} alignItems={'center'}>
         <Select
           id={'selectCountry'}
+          label={'Страна'}
           defaultValue={country}
           value={country}
           onChange={changeCountry}
           items={countriesDictionary}
-          sx={{ backgroundColor: 'lightgray' }}
-          disabled={false}
         />
         <TextField
-          sx={{ backgroundColor: 'lightgray', borderRadius: 1 }}
+          label={'Исследуемое отклонение, %'}
           defaultValue={attention}
           type={'number'}
           onChange={changeAttention}
         />
         <IconButton
+          title='Обновить все котировки'
           onClick={() => {
             setIsBusy(true);
             getShareCounting(0);
@@ -158,13 +90,13 @@ export const MainPage = memo(() => {
         >
           <UpdateIcon color={isBusy ? 'disabled' : 'primary'} />
         </IconButton>
-      </Grid>
-      <Grid item xs={12} px={3}>
         {isBusy && (
-          <Box sx={{ color: 'whitesmoke', py: 1 }}>
+          <Box sx={{ color: 'whitesmoke' }}>
             {`In process of loading... Progress: ${currentPosition}/${tickers.length}`}
           </Box>
         )}
+      </Grid>
+      <Grid item xs={12} px={3}>
         <TableShares
           columns={tableColumns}
           rows={shares}
