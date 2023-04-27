@@ -30,11 +30,15 @@ export const tableColumns: Column[] = [
   { id: 'three_month_ago_price', label: 'Цена 90 дней назад', minWidth: 100 },
   { id: 'half_year_ago_price', label: 'Цена 180 дней назад', minWidth: 100 },
   { id: 'year_ago_price', label: 'Цена 365 дней назад', minWidth: 100 },
+  { id: 'two_years_ago_price', label: 'Цена 730 дней назад', minWidth: 100 },
+  { id: 'three_years_ago_price', label: 'Цена 1095 дней назад', minWidth: 100 },
   { id: 'actual_trend_week', label: 'Изменения за 7 дней', minWidth: 100 },
   { id: 'actual_trend_month', label: 'Изменения за 30 дней', minWidth: 100 },
   { id: 'actual_trend_three_months', label: 'Изменения за 90 дней', minWidth: 100 },
   { id: 'actual_trend_half_year', label: 'Изменения за 180 дней', minWidth: 100 },
   { id: 'actual_trend_year', label: 'Изменения за 365 дней', minWidth: 100 },
+  { id: 'actual_trend_year', label: 'Изменения за 730 дней', minWidth: 100 },
+  { id: 'actual_trend_year', label: 'Изменения за 1095 дней', minWidth: 100 },
 ];
 
 const initTrend: Trend = { trend: false, power: 0 };
@@ -51,11 +55,15 @@ export const convertShareToTableItem = (it: ShareItem): TableType => ({
   three_month_ago_price: 0,
   half_year_ago_price: 0,
   year_ago_price: 0,
+  two_years_ago_price: 0,
+  three_years_ago_price: 0,
   actual_trend_week: initTrend,
   actual_trend_month: initTrend,
   actual_trend_three_months: initTrend,
   actual_trend_half_year: initTrend,
   actual_trend_year: initTrend,
+  actual_trend_two_years: initTrend,
+  actual_trend_three_years: initTrend,
   summary_trend_by_year: initTrend,
 });
 
@@ -127,12 +135,16 @@ export const localStorageTableData = () => {
     item.three_month_ago_price = shareQuotation.three_month_ago_price;
     item.half_year_ago_price = shareQuotation.half_year_ago_price;
     item.year_ago_price = shareQuotation.year_ago_price;
+    item.two_years_ago_price = shareQuotation.two_years_ago_price;
+    item.three_years_ago_price = shareQuotation.three_years_ago_price;
     item.actual_trend_week = shareQuotation.actual_trend_week;
     item.actual_trend_month = shareQuotation.actual_trend_month;
     item.actual_trend_three_months = shareQuotation.actual_trend_three_months;
     item.actual_trend_half_year = shareQuotation.actual_trend_half_year;
     item.actual_trend_year = shareQuotation.actual_trend_year;
     item.summary_trend_by_year = shareQuotation.summary_trend_by_year;
+    item.actual_trend_two_years = shareQuotation.actual_trend_two_years;
+    item.actual_trend_three_years = shareQuotation.actual_trend_three_years;
     item.strong_attention = shareQuotation.strong_attention;
     tableShareData.set(item.ticker, item);
   };

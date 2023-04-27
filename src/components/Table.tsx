@@ -8,6 +8,7 @@ import {
   TableBody,
   TablePagination,
   SxProps,
+  useTheme,
 } from '@mui/material';
 import React, { memo, useCallback } from 'react';
 import { TickerId } from '../models';
@@ -35,6 +36,7 @@ const sxFirstColumnHeader: SxProps = {
 export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: Props) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(20);
+  const theme = useTheme();
 
   const handleChangePage = useCallback(
     (event: unknown, newPage: number) => {
@@ -77,8 +79,8 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
                       <TableCell
                         sx={
                           column.id === 'name'
-                            ? { ...sxFirstColumn, color: '#a25dea', py: 0 }
-                            : { color: '#a25dea', py: 0 }
+                            ? { ...sxFirstColumn, color: theme.palette.primary.dark, py: 0 }
+                            : { color: theme.palette.primary.dark, py: 0 }
                         }
                         key={column.id}
                         align={'left'}

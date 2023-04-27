@@ -6,6 +6,7 @@ import {
   Typography,
   useTheme,
   Box,
+  Tooltip,
 } from '@mui/material';
 import UpdateIcon from '@mui/icons-material/Update';
 import React, { ChangeEvent, memo, useCallback, useEffect, useState } from 'react';
@@ -16,6 +17,12 @@ import { useGetAllSharesByCountry, useGetTickersByCountry } from './useGetMetaDa
 import { useShareActions } from './useShareActions';
 
 const { getSharesTableDataArray, clearSharesTableData } = localStorageTableData();
+
+const help = (
+  <Box>
+    <Box>1. Необходимо сделать дохера всего...</Box>
+  </Box>
+);
 
 export const MainPage = memo(() => {
   const [country, setCountry] = useState<CountryTypeCode>('RU');
@@ -56,11 +63,11 @@ export const MainPage = memo(() => {
 
   return (
     <Grid container>
-      <Grid item xs={12}>
+      <Grid item xs={12} pb={1}>
         <Typography
           variant='h5'
           align='center'
-          sx={{ color: theme.palette.primary.light, pt: 2, fontWeight: 'bold' }}
+          sx={{ color: theme.palette.primary.dark, pt: 2, fontWeight: 'bold' }}
         >
           Алгоритмический робот (Анализ тренда на рынке по периодам за последний год)
         </Typography>
@@ -90,8 +97,11 @@ export const MainPage = memo(() => {
         >
           <UpdateIcon color={isBusy ? 'disabled' : 'primary'} />
         </IconButton>
+        <Tooltip title={help}>
+          <Box pr={1}>Помощь</Box>
+        </Tooltip>
         {isBusy && (
-          <Box sx={{ color: 'whitesmoke' }}>
+          <Box sx={{ color: 'whitesmoke' }} pr={1}>
             {`In process of loading... Progress: ${currentPosition}/${tickers.length}`}
           </Box>
         )}
