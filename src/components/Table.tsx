@@ -70,7 +70,7 @@ export const TableShares = memo(({ columns, rows, onClick, getTablePageState }: 
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+            {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
               return (
                 <TableRow hover tabIndex={-1} key={row.ticker}>
                   {columns.map((column) => {

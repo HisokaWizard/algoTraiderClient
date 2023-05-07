@@ -24,10 +24,21 @@ const help = (
   </Box>
 );
 
+const getDataFromLocalStorage = () => {
+  const result = localStorage.getItem('shares');
+  if (!result) return;
+  const _shares = JSON.parse(result);
+  return _shares;
+};
+
+const sharesData = getDataFromLocalStorage();
+
 export const MainPage = memo(() => {
   const [country, setCountry] = useState<CountryTypeCode>('RU');
-  const { tickers, tickersMapData } = useGetTickersByCountry(country);
-  const { readyToSetShares } = useGetAllSharesByCountry(country);
+  const { tickers, tickersMapData } = useGetTickersByCountry(!!sharesData ? undefined : country);
+  const { readyToSetShares, setReadyToSetShares } = useGetAllSharesByCountry(
+    !!sharesData ? undefined : country,
+  );
   const {
     setShares,
     shares,
@@ -40,6 +51,11 @@ export const MainPage = memo(() => {
     currentPosition,
   } = useShareActions(tickersMapData, tickers);
   const theme = useTheme();
+
+  useEffect(() => {
+    if (country !== 'RU' || !sharesData) return;
+    setShares(sharesData);
+  }, []);
 
   useEffect(() => {
     if (!readyToSetShares) return;
@@ -58,6 +74,7 @@ export const MainPage = memo(() => {
     const newCountry = event.target.value as CountryTypeCode;
     if (!newCountry) return;
     setCountry(newCountry);
+    setReadyToSetShares(false);
     clearSharesTableData();
   }, []);
 

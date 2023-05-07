@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { localStorageTableData } from '../components';
-import { CountryTypeCode, ShareItem, ShareTicker, TickerId } from '../models';
+import { CountryTypeCode, ShareTicker, TickerId } from '../models';
 import { useGetAllSharesQuery, useGetTickersByCountryQuery } from '../store/sharesApi';
 
-export const useGetTickersByCountry = (country_code: CountryTypeCode) => {
-  const { data, error: tickersError } = useGetTickersByCountryQuery(country_code, {
-    skip: !country_code,
-  });
+export const useGetTickersByCountry = (country_code: CountryTypeCode | undefined) => {
+  const { data, error: tickersError } = useGetTickersByCountryQuery(
+    country_code ?? ('' as CountryTypeCode),
+    {
+      skip: !country_code,
+    },
+  );
 
   const tickersMapData = useMemo(() => {
     if (!data) return null;
@@ -31,15 +34,14 @@ export const useGetTickersByCountry = (country_code: CountryTypeCode) => {
 
 const { addNewRowItem } = localStorageTableData();
 
-export const useGetAllSharesByCountry = (country_code: CountryTypeCode) => {
-  const { data, error: sharesError } = useGetAllSharesQuery(country_code, {
-    skip: !country_code,
-  });
+export const useGetAllSharesByCountry = (country_code: CountryTypeCode | undefined) => {
+  const { data, error: sharesError } = useGetAllSharesQuery(
+    country_code ?? ('' as CountryTypeCode),
+    {
+      skip: !country_code,
+    },
+  );
   const [readyToSetShares, setReadyToSetShares] = useState(false);
-
-  useEffect(() => {
-    setReadyToSetShares(false);
-  }, [country_code]);
 
   if (sharesError) {
     console.error(sharesError);
@@ -55,5 +57,6 @@ export const useGetAllSharesByCountry = (country_code: CountryTypeCode) => {
 
   return {
     readyToSetShares,
+    setReadyToSetShares,
   };
 };

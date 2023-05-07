@@ -8,7 +8,7 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 
 export type TableType = ShareQoutation &
   Omit<ShareItem, 'id' | 'figi' | 'lot' | 'country_of_risk' | 'country_of_risk_name'> & {
-    get_current_values: { update: void };
+    get_current_values: { update: true };
   };
 
 export interface Column {
@@ -47,7 +47,7 @@ export const convertShareToTableItem = (it: ShareItem): TableType => ({
   name: it.name,
   ticker: it.ticker,
   currency: it.currency,
-  get_current_values: { update: undefined },
+  get_current_values: { update: true },
   strong_attention: false,
   today_price: 0,
   week_ago_price: 0,
@@ -68,7 +68,7 @@ export const convertShareToTableItem = (it: ShareItem): TableType => ({
 });
 
 export const dataMapping = (
-  item: Trend | string | number | boolean | { update: void },
+  item: Trend | string | number | boolean | { update: true },
   onClick?: () => void,
 ): ReactNode | number | string | boolean => {
   if (!item) return '-';
@@ -91,7 +91,7 @@ export const dataMapping = (
       </Grid>
     );
   }
-  if (typeof item === 'object' && 'update' in (item as { update: void })) {
+  if (typeof item === 'object' && 'update' in item) {
     return (
       <Grid item>
         <UpdateIcon

@@ -37,7 +37,9 @@ export const useShareActions = (
     if (!isJobComplete) return;
     setIsJobComplete(false);
     setIsBusy(false);
-    setShares(getSharesTableDataArray());
+    const result = getSharesTableDataArray();
+    setShares(result);
+    window.localStorage.setItem('shares', JSON.stringify(result));
   }, [isJobComplete]);
 
   // Specific recursive method to get quotations
