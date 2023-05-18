@@ -23,7 +23,7 @@ export const tableColumns: Column[] = [
   { id: 'currency', label: 'Валюта', minWidth: 80 },
   { id: 'get_current_values', label: 'Обновить данные', minWidth: 80 },
   { id: 'strong_attention', label: 'ВНИМАНИЕ', minWidth: 80 },
-  { id: 'summary_trend_by_year', label: 'Суммарный тренд за год', minWidth: 100 },
+  { id: 'summary_trend_by_year', label: 'Суммарный тренд за 3 года', minWidth: 100 },
   { id: 'today_price', label: 'Текущая цена', minWidth: 100 },
   { id: 'week_ago_price', label: 'Цена 7 дней назад', minWidth: 100 },
   { id: 'month_ago_price', label: 'Цена 30 дней назад', minWidth: 100 },
@@ -37,8 +37,8 @@ export const tableColumns: Column[] = [
   { id: 'actual_trend_three_months', label: 'Изменения за 90 дней', minWidth: 100 },
   { id: 'actual_trend_half_year', label: 'Изменения за 180 дней', minWidth: 100 },
   { id: 'actual_trend_year', label: 'Изменения за 365 дней', minWidth: 100 },
-  { id: 'actual_trend_year', label: 'Изменения за 730 дней', minWidth: 100 },
-  { id: 'actual_trend_year', label: 'Изменения за 1095 дней', minWidth: 100 },
+  { id: 'actual_trend_two_years', label: 'Изменения за 730 дней', minWidth: 100 },
+  { id: 'actual_trend_three_years', label: 'Изменения за 1095 дней', minWidth: 100 },
 ];
 
 const initTrend: Trend = { trend: false, power: 0 };

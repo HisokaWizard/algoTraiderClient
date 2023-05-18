@@ -9,8 +9,16 @@ import {
   Tooltip,
 } from '@mui/material';
 import UpdateIcon from '@mui/icons-material/Update';
-import React, { ChangeEvent, memo, useCallback, useEffect, useState } from 'react';
-import { localStorageTableData, Select, tableColumns } from '../components';
+import React, { ChangeEvent, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  getComparator,
+  localStorageTableData,
+  Order,
+  Select,
+  stableSort,
+  tableColumns,
+  TableType,
+} from '../components';
 import { countriesDictionary, CountryTypeCode } from '../models';
 import { TableShares } from '../components/Table';
 import { useGetAllSharesByCountry, useGetTickersByCountry } from './useGetMetaData';
@@ -24,21 +32,23 @@ const help = (
   </Box>
 );
 
-const getDataFromLocalStorage = () => {
+const getDataFromLocalStorage = (): any[] => {
   const result = localStorage.getItem('shares');
-  if (!result) return;
+  if (!result) return [];
   const _shares = JSON.parse(result);
   return _shares;
 };
 
-const sharesData = getDataFromLocalStorage();
-
 export const MainPage = memo(() => {
-  const [country, setCountry] = useState<CountryTypeCode>('RU');
-  const { tickers, tickersMapData } = useGetTickersByCountry(!!sharesData ? undefined : country);
-  const { readyToSetShares, setReadyToSetShares } = useGetAllSharesByCountry(
-    !!sharesData ? undefined : country,
-  );
+  const sharesData = getDataFromLocalStorage();
+  const countryCode: CountryTypeCode = (localStorage.getItem('country') as CountryTypeCode) ?? 'RU';
+
+  const [country, setCountry] = useState<CountryTypeCode>(countryCode);
+  const [order, setOrder] = React.useState<Order>('asc');
+  const [orderBy, setOrderBy] = React.useState<keyof TableType>('summary_trend_by_year');
+  const reallyCountry = !!sharesData && sharesData.length !== 0 ? undefined : country;
+  const { tickers, tickersMapData } = useGetTickersByCountry(reallyCountry);
+  const { readyToSetShares, setReadyToSetShares } = useGetAllSharesByCountry(reallyCountry);
   const {
     setShares,
     shares,
@@ -53,7 +63,7 @@ export const MainPage = memo(() => {
   const theme = useTheme();
 
   useEffect(() => {
-    if (country !== 'RU' || !sharesData) return;
+    if (!sharesData) return;
     setShares(sharesData);
   }, []);
 
@@ -61,6 +71,11 @@ export const MainPage = memo(() => {
     if (!readyToSetShares) return;
     setShares(getSharesTableDataArray());
   }, [readyToSetShares]);
+
+  const sortedShares = useMemo(
+    () => stableSort<TableType>(shares, getComparator(order, orderBy)),
+    [order, shares],
+  );
 
   const changeAttention = useCallback(
     (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -76,7 +91,18 @@ export const MainPage = memo(() => {
     setCountry(newCountry);
     setReadyToSetShares(false);
     clearSharesTableData();
+    window.localStorage.setItem('country', newCountry);
+    window.localStorage.setItem('shares', JSON.stringify([]));
   }, []);
+
+  const handleRequestSort = useCallback(
+    (event: React.MouseEvent<unknown>, property: keyof TableType) => {
+      const isAsc = orderBy === property && order === 'asc';
+      setOrder(isAsc ? 'desc' : 'asc');
+      setOrderBy(property);
+    },
+    [order, orderBy],
+  );
 
   return (
     <Grid container>
@@ -126,8 +152,11 @@ export const MainPage = memo(() => {
       <Grid item xs={12} px={3}>
         <TableShares
           columns={tableColumns}
-          rows={shares}
+          rows={sortedShares}
           onClick={!isBusy ? updateShareCountingByTicker : undefined}
+          order={order}
+          orderBy={orderBy}
+          onRequestSort={handleRequestSort}
         />
       </Grid>
     </Grid>
